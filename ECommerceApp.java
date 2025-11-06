@@ -1,3 +1,4 @@
+// ECommerceApp.java
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.*;
@@ -175,20 +176,56 @@ public class ECommerceApp {
             }
         }
 
+        // <-- UPDATED: added many more products of varied categories
         private void seedDefaultData(Repository r) {
             User admin = new User("Admin", "admin@shop.com", "admin123", User.Role.ADMIN);
             User c1 = new User("Ali", "ali@example.com", "pass", User.Role.CUSTOMER);
             r.users.add(admin);
             r.users.add(c1);
 
+            // Cakes & slices
             r.products.add(new Product("Chocolate Cake", "Delicious dark chocolate cake (8 inch)", 25.0, 15, "Cakes"));
-            r.products.add(new Product("Vanilla Cupcakes (6)", "Soft vanilla cupcakes (pack of 6)", 10.0, 40, "Cupcakes"));
-            r.products.add(new Product("Strawberry Tart", "Fresh strawberry tart", 18.0, 10, "Tarts"));
+            r.products.add(new Product("Vanilla Sponge (8\")", "Light vanilla sponge cake (8 inch)", 23.0, 12, "Cakes"));
             r.products.add(new Product("Red Velvet Slice", "Single slice of red velvet cake", 6.0, 30, "Slices"));
             r.products.add(new Product("Lemon Cheesecake", "Creamy lemon cheesecake", 22.0, 8, "Cakes"));
-            r.products.add(new Product("Tiramisu", "Classic Italian coffee-flavored dessert", 28.0, 12, "Cakes"));
-            r.products.add(new Product("Macarons (12)", "Assorted French macarons", 15.0, 25, "Pastries"));
+            r.products.add(new Product("Oreo Cheesecake", "Creamy cheesecake with crushed Oreos", 24.0, 9, "Cakes"));
+            r.products.add(new Product("Black Forest", "Classic Black Forest cake with cherries", 27.0, 7, "Cakes"));
             r.products.add(new Product("Carrot Cake", "Moist carrot cake with cream cheese frosting", 20.0, 18, "Cakes"));
+            r.products.add(new Product("Tiramisu", "Classic Italian coffee-flavored dessert", 28.0, 12, "Cakes"));
+
+            // Cupcakes / slices / tarts
+            r.products.add(new Product("Vanilla Cupcakes (6)", "Soft vanilla cupcakes (pack of 6)", 10.0, 40, "Cupcakes"));
+            r.products.add(new Product("Strawberry Tart", "Fresh strawberry tart", 18.0, 10, "Tarts"));
+            r.products.add(new Product("Fruit Tart", "Tart filled with custard and topped with mixed fruits", 16.0, 10, "Tarts"));
+            r.products.add(new Product("Apple Cinnamon Slice", "Single slice with apple & cinnamon", 5.0, 20, "Slices"));
+
+            // Pastries & macarons
+            r.products.add(new Product("Macarons (12)", "Assorted French macarons", 15.0, 25, "Pastries"));
+            r.products.add(new Product("Macaron Gift Box (24)", "Large assorted macarons gift box", 28.0, 15, "Pastries"));
+            r.products.add(new Product("Butter Croissant", "Flaky French-style butter croissant", 5.0, 25, "Pastries"));
+            r.products.add(new Product("Almond Croissant", "Croissant with almond filling", 6.0, 18, "Pastries"));
+
+            // Donuts & muffins
+            r.products.add(new Product("Chocolate Donut Box (6)", "Soft donuts topped with chocolate glaze", 12.0, 15, "Donuts"));
+            r.products.add(new Product("Assorted Donut Box (6)", "Mix of glazed and filled donuts", 12.0, 20, "Donuts"));
+            r.products.add(new Product("Blueberry Muffin", "Freshly baked muffin filled with blueberries", 8.0, 20, "Muffins"));
+            r.products.add(new Product("Bran Muffin", "Healthy bran muffin", 7.0, 22, "Muffins"));
+
+            // Cookies / breads
+            r.products.add(new Product("Chocolate Chip Cookies (12)", "Box of freshly baked cookies", 9.0, 30, "Cookies"));
+            r.products.add(new Product("Sourdough Loaf", "Artisan sourdough (whole loaf)", 14.0, 10, "Breads"));
+
+            // Savories / seasonal
+            r.products.add(new Product("Quiche Lorraine", "Savory quiche with bacon & cheese", 12.0, 8, "Savory"));
+            r.products.add(new Product("Spinach Feta Roll", "Pastry roll with spinach & feta", 9.0, 10, "Savory"));
+
+            // Gift items / boxed sets
+            r.products.add(new Product("Birthday Candle Set", "Set of 24 decorative candles", 4.0, 50, "Gifts"));
+            r.products.add(new Product("Tea & Biscuit Gift Pack", "Tea bags with assorted biscuits", 18.0, 12, "Gifts"));
+
+            // keep original ones already present
+            r.products.add(new Product("Macarons (12)", "Assorted French macarons", 15.0, 25, "Pastries")); // duplicate okay for seed
+            r.products.add(new Product("Carrot Cupcake (1)", "Single carrot cupcake", 3.0, 40, "Cupcakes"));
         }
     }
 
@@ -632,6 +669,10 @@ public class ECommerceApp {
         private final JLabel cartLabel = new JLabel();
         private final JLabel welcomeLabel = new JLabel();
 
+        // constants used for layout calculations
+        private final int CARD_WIDTH = 260;
+        private final int CARD_HGAP = 20;
+        private final int CARD_VGAP = 20;
 
         StoreView(ECommerceApp app) {
             setName("STORE");
@@ -668,7 +709,7 @@ public class ECommerceApp {
             searchPanel.add(categoryBox);
 
             JButton searchBtn = styledButton("Search", BUTTON, BUTTON_HOVER);
-            searchBtn.setPreferredSize(new Dimension(100, 34));
+            searchBtn.setPreferredSize(new Dimension(90, 34));
             searchPanel.add(searchBtn);
             header.add(searchPanel, BorderLayout.CENTER);
 
@@ -688,12 +729,28 @@ public class ECommerceApp {
 
             add(header, BorderLayout.NORTH);
 
-            // Cards panel in center
-            cardsPanel.setLayout(new WrapLayout(FlowLayout.LEFT, 20, 20));
+            // ------------------------------------
+            // Cards panel in center - RESPONSIVE
+            // ------------------------------------
+            // Start with a GridLayout; we'll recalc columns on resize for "auto-adjust".
+            cardsPanel.setLayout(new GridLayout(0, 3, CARD_HGAP, CARD_VGAP));
             cardsPanel.setBackground(BG);
-            scrollPane = new JScrollPane(cardsPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+            scrollPane = new JScrollPane(cardsPanel);
             scrollPane.setBorder(BorderFactory.createEmptyBorder());
+            // Force only vertical scrolling:
+            scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+            scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
             scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+
+            // Listen for viewport width changes and adjust number of columns (responsive)
+            scrollPane.getViewport().addComponentListener(new java.awt.event.ComponentAdapter() {
+                @Override
+                public void componentResized(java.awt.event.ComponentEvent e) {
+                    SwingUtilities.invokeLater(() -> adjustGridColumns());
+                }
+            });
+
             add(scrollPane, BorderLayout.CENTER);
 
             // Bottom bar
@@ -723,6 +780,26 @@ public class ECommerceApp {
 
             // initial populate
             populateCards(productController.listAll());
+            // ensure layout columns are correct initially
+            SwingUtilities.invokeLater(this::adjustGridColumns);
+        }
+
+        // this recalculates how many columns fit in viewport width
+        private void adjustGridColumns() {
+            if (scrollPane == null) return;
+            JViewport vp = scrollPane.getViewport();
+            int vpWidth = vp.getWidth();
+            if (vpWidth <= 0) return;
+            // include gaps when calculating
+            int fullCardWidth = CARD_WIDTH + CARD_HGAP;
+            int cols = Math.max(1, vpWidth / fullCardWidth);
+            // if viewport is slightly smaller we still want at least 1 column
+            GridLayout gl = (GridLayout) cardsPanel.getLayout();
+            if (gl.getColumns() != cols) {
+                gl.setColumns(cols);
+                cardsPanel.revalidate();
+                cardsPanel.repaint();
+            }
         }
 
         void doSearch() {
@@ -751,12 +828,14 @@ public class ECommerceApp {
 
         JPanel productCard(Product p) {
             JPanel card = new JPanel(new BorderLayout());
-            card.setPreferredSize(new Dimension(260, 340));
+            card.setPreferredSize(new Dimension(CARD_WIDTH, 200));
             card.setBackground(CARD_BG);
             card.setBorder(new CompoundBorder(
                     new LineBorder(BORDER, 1),
                     new EmptyBorder(12,12,12,12)
+
             ));
+            card.setLayout(new BorderLayout(0, 0));
 
             // subtle shadow
             card.setBorder(new CompoundBorder(
@@ -764,7 +843,7 @@ public class ECommerceApp {
                     card.getBorder()
             ));
 
-            // Product "image"
+            /*// Product "image"
             JPanel imagePanel = new JPanel(new BorderLayout()) {
                 @Override
                 protected void paintComponent(Graphics g) {
@@ -792,17 +871,18 @@ public class ECommerceApp {
                     }
                 }
             };
-            imagePanel.setPreferredSize(new Dimension(240, 140));
+            imagePanel.setPreferredSize(new Dimension(CARD_WIDTH - 20, 140));
             imagePanel.setBorder(new LineBorder(BORDER, 1));
             card.add(imagePanel, BorderLayout.NORTH);
-
+*/
+            
             // details
             JPanel center = new JPanel(new BorderLayout());
             center.setBackground(CARD_BG);
-            center.setBorder(new EmptyBorder(10, 8, 10, 8));
+            center.setBorder(new EmptyBorder(6, 8, 6, 8));
             JLabel name = new JLabel("<html><b>" + p.getName() + "</b></html>");
             name.setFont(fontBody.deriveFont(Font.BOLD));
-            name.setForeground(TEXT);
+            name.setForeground(new Color(46,59,79)); // darker text for readability
             center.add(name, BorderLayout.NORTH);
 
             JTextArea desc = new JTextArea(p.getDescription());
@@ -814,7 +894,7 @@ public class ECommerceApp {
             desc.setForeground(TEXT_LIGHT);
             desc.setBorder(new EmptyBorder(6, 0, 6, 0));
             center.add(desc, BorderLayout.CENTER);
-            card.add(center, BorderLayout.CENTER);
+            card.add(center, BorderLayout.NORTH);
 
             // bottom
             JPanel bottom = new JPanel(new BorderLayout());
@@ -877,6 +957,7 @@ public class ECommerceApp {
             if (prevCat != null) categoryBox.setSelectedItem(prevCat);
             populateCards(productController.listAll());
             updateCartLabel();
+            SwingUtilities.invokeLater(this::adjustGridColumns);
         }
     }
 
@@ -932,6 +1013,7 @@ public class ECommerceApp {
             // right.add(backStore); // HIDDEN
             right.add(logout);
 
+            add(add); add(edit); add(remove); add(viewOrders); add(logout); // keep local variables visible if needed (no-ops)
             add(right, BorderLayout.EAST);
 
             add.addActionListener(e -> {
@@ -1036,9 +1118,9 @@ public class ECommerceApp {
         }
     }
 
-// ------------------------
-// Dialogs and helpers
-// ------------------------
+    // ------------------------
+    // Dialogs and helpers
+    // ------------------------
 
     // ProductForm dialog for admin add/edit
     class ProductForm extends JDialog {
@@ -1329,8 +1411,8 @@ public class ECommerceApp {
     }
 
     // ------------------------
-// Table models for product & orders
-// ------------------------
+    // Table models for product & orders
+    // ------------------------
     static class ProductTableModel extends AbstractTableModel {
         private List<Product> products;
         private final String[] cols = { "Name", "Category", "Price", "Stock", "Description" };
@@ -1388,9 +1470,9 @@ public class ECommerceApp {
         }
     }
 
-// ------------------------
-// UI utility helpers
-// ------------------------
+    // ------------------------
+    // UI utility helpers
+    // ------------------------
 
     // Styled button with hover effect (modern: accent buttons have white foreground)
     private JButton styledButton(String text, Color bg, Color hoverBg) {
@@ -1452,6 +1534,7 @@ public class ECommerceApp {
 
     /**
      * WrapLayout: FlowLayout that wraps components to a new row when necessary.
+     * (Left in the file for compatibility with older code; StoreView uses GridLayout now.)
      */
     static class WrapLayout extends FlowLayout {
         public WrapLayout() { super(); }
