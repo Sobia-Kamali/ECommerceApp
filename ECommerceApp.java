@@ -899,7 +899,7 @@ public class ECommerceApp {
             prodTable.setRowHeight(30);
             prodTable.setFont(fontBody);
             prodTable.getTableHeader().setFont(fontBody.deriveFont(Font.BOLD));
-            prodTable.setSelectionBackground(new Color(240, 245, 250));
+            prodTable.setSelectionBackground(new Color(53, 73, 255));
             prodTable.setGridColor(BORDER);
 
             JScrollPane sp = new JScrollPane(prodTable);
